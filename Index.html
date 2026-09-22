@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The Simple Word</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+
+    --bg: #FBF4E6;
+    --bg-raised: #FFFFFF;
+    --ink: #2B2520;
+    --ink-soft: #6B6156;
+    --ink-faint: #9C9284;
+    --line: #E9DEC7;
+    --accent: #3F6E7A;
+    --accent-soft: #E4EEEF;
+    --gold: #B8903F;
+    --gold-soft: #F6ECD6;
+    --glow1: #FCE3B0;
+    --glow2: #F6C88A;
+    --shadow: rgba(43, 37, 32, 0.08);
+  }
+  :root:not([data-theme="light"]) {
+    @media (prefers-color-scheme: dark) {
+      --bg: #1E1911;
+      --bg-raised: #29231A;
+      --ink: #F1E9DA;
+      --ink-soft: #C4B8A5;
+      --ink-faint: #8B8072;
+      --line: #3E362A;
+      --accent: #83B7C3;
+      --accent-soft: #2C3A3C;
+      --gold: #E3BA6C;
+      --gold-soft: #382E1E;
+      --glow1: #4A3A1F;
+      --glow2: #3A2E1A;
+      --shadow: rgba(0, 0, 0, 0.4);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #1E1911;
+    --bg-raised: #29231A;
+    --ink: #F1E9DA;
+    --ink-soft: #C4B8A5;
+    --ink-faint: #8B8072;
+    --line: #3E362A;
+    --accent: #83B7C3;
+    --accent-soft: #2C3A3C;
+    --gold: #E3BA6C;
+    --gold-soft: #382E1E;
+    --glow1: #4A3A1F;
+    --glow2: #3A2E1A;
+    --shadow: rgba(0, 0, 0, 0.4);
+  }
+  html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Work Sans', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100%;
+  }
+  #app { max-width: 640px; margin: 0 auto; padding: 0 18px 60px; }
+
+  /* ---- hero artwork ---- */
+  .hero {
+    position: relative;
+    margin: 0 -18px 18px;
+    padding: calc(env(safe-area-inset-top, 0px) + 22px) 24px 30px;
+    overflow: hidden;
+    background:
+      radial-gradient(120% 90% at 50% -10%, var(--glow1) 0%, transparent 60%),
+      linear-gradient(180deg, var(--bg-raised) 0%, var(--bg) 100%);
+    border-bottom: 1px solid var(--line);
+  }
+  .hero svg.rays {
+    position: absolute; top: -20%; left: 50%; transform: translateX(-50%);
+    width: 480px; max-width: 140%; height: auto; opacity: 0.55;
+    animation: raypulse 7s ease-in-out infinite;
+  }
+  @keyframes raypulse {
+    0%, 100% { opacity: 0.4; transform: translateX(-50%) scale(1); }
+    50% { opacity: 0.65; transform: translateX(-50%) scale(1.04); }
+  }
+  .hero-content { position: relative; z-index: 1; text-align: center; }
+  .brand .name {
+    font-family: 'Lora', serif; font-size: 1.9rem; font-weight: 600; letter-spacing: 0.2px;
+  }
+  .brand .tag { font-size: 0.9rem; color: var(--ink-soft); margin-top: 6px; font-style: italic; font-family: 'Lora', serif; }
+  .dove { width: 34px; height: 34px; margin: 0 auto 10px; opacity: 0.85; }
+  .freepill {
+    display: inline-block; margin-top: 12px; padding: 5px 13px; border-radius: 20px;
+    background: var(--accent-soft); color: var(--accent); font-size: 0.75rem; font-weight: 600;
+    letter-spacing: 0.3px;
+  }
+
+  .backbar {
+    display: flex; align-items: center; gap: 10px; margin: 18px 0 16px;
+  }
+  .backbtn {
+    background: none; border: none; color: var(--accent); font-family: 'Work Sans', sans-serif;
+    font-size: 0.95rem; font-weight: 600; padding: 6px 4px; cursor: pointer; display: flex; align-items: center; gap: 4px;
+  }
+  .backbtn:active { opacity: 0.6; }
+
+  .jumpbar { display: flex; gap: 8px; margin-bottom: 22px; }
+  .jumpbar input {
+    flex: 1; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--line);
+    background: var(--bg-raised); color: var(--ink); font-family: 'Work Sans', sans-serif; font-size: 0.95rem;
+  }
+  .jumpbar input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .jumpbar button {
+    padding: 12px 16px; border-radius: 12px; border: none; background: var(--accent); color: white;
+    font-family: 'Work Sans', sans-serif; font-weight: 600; font-size: 0.9rem; cursor: pointer;
+  }
+  .jumpbar button:active { opacity: 0.85; }
+  .jumphint { font-size: 0.78rem; color: var(--ink-faint); margin: -14px 0 22px 2px; }
+
+  .welcome {
+    font-family: 'Lora', serif; font-size: 1.03rem; line-height: 1.65; color: var(--ink-soft);
+    margin-bottom: 26px; padding: 16px 18px; background: var(--bg-raised); border-radius: 14px;
+    border: 1px solid var(--line); position: relative;
+  }
+  .welcome::before {
+    content: "\201C"; font-family: 'Lora', serif; color: var(--gold); font-size: 2.4rem;
+    position: absolute; top: -6px; left: 10px; opacity: 0.5; line-height: 1;
+  }
+
+  .testament-title {
+    font-size: 0.78rem; text-transform: uppercase; letter-spacing: 1px; color: var(--ink-faint);
+    margin: 26px 0 10px 2px; font-weight: 600;
+  }
+  .booklist { display: flex; flex-wrap: wrap; gap: 8px; }
+  .bookchip {
+    padding: 9px 14px; border-radius: 10px; background: var(--bg-raised); border: 1px solid var(--line);
+    color: var(--ink); font-family: 'Work Sans', sans-serif; font-size: 0.9rem; cursor: pointer;
+    box-shadow: 0 1px 2px var(--shadow);
+  }
+  .bookchip:active { background: var(--accent-soft); border-color: var(--accent); }
+
+  .chaptergrid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(46px, 1fr)); gap: 8px; margin-top: 4px;
+  }
+  .chapternum {
+    aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
+    background: var(--bg-raised); border: 1px solid var(--line); border-radius: 10px;
+    font-family: 'Work Sans', sans-serif; font-weight: 600; font-size: 0.95rem; color: var(--ink); cursor: pointer;
+    box-shadow: 0 1px 2px var(--shadow);
+  }
+  .chapternum:active { background: var(--accent-soft); border-color: var(--accent); }
+
+  .chapterhead { font-family: 'Lora', serif; font-size: 1.6rem; font-weight: 600; margin-bottom: 4px; }
+  .chaptersub { color: var(--ink-soft); font-size: 0.88rem; margin-bottom: 18px; }
+
+  .explainall {
+    display: block; width: 100%; padding: 12px; border-radius: 12px; border: 1px dashed var(--accent);
+    background: none; color: var(--accent); font-family: 'Work Sans', sans-serif; font-weight: 600;
+    font-size: 0.9rem; cursor: pointer; margin-bottom: 20px;
+  }
+  .explainall:active { background: var(--accent-soft); }
+
+  .versewrap { margin-bottom: 2px; }
+  .verse {
+    display: flex; gap: 10px; padding: 10px 4px; cursor: pointer; border-radius: 10px;
+    font-family: 'Lora', serif; font-size: 1.08rem; line-height: 1.65;
+  }
+  .verse:active { background: var(--accent-soft); }
+  .versenum {
+    flex-shrink: 0; color: var(--gold); font-weight: 600; font-size: 0.85rem;
+    font-family: 'Work Sans', sans-serif; padding-top: 4px; min-width: 20px;
+  }
+  .versetext { color: var(--ink); }
+
+  .panelwrap { margin: 0 4px 16px 34px; }
+
+  .voicebtns { display: flex; gap: 8px; margin-bottom: 10px; }
+  .voicebtn {
+    flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px;
+    padding: 11px 10px; border-radius: 12px; border: 1px solid var(--line); background: var(--bg-raised);
+    color: var(--ink); font-family: 'Work Sans', sans-serif; font-weight: 600; font-size: 0.83rem; cursor: pointer;
+    text-align: center; line-height: 1.25;
+  }
+  .voicebtn.playing { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .voicebtn.explain { border-color: var(--gold); }
+  .voicebtn.explain.playing { background: var(--gold); border-color: var(--gold); }
+  .voicebtn:active { opacity: 0.85; }
+  .voicebtn:disabled { opacity: 0.5; }
+
+  .explainpanel {
+    padding: 14px 16px; background: var(--gold-soft); border-radius: 12px;
+    border-left: 3px solid var(--gold); font-family: 'Work Sans', sans-serif; font-size: 0.92rem; line-height: 1.6;
+  }
+  .explainpanel .tricky {
+    display: inline-block; font-size: 0.78rem; font-weight: 700; color: #9a5a1f; background: rgba(184,144,63,0.18);
+    padding: 4px 10px; border-radius: 8px; margin-bottom: 10px;
+  }
+  .explainpanel .restated {
+    font-family: 'Lora', serif; font-style: italic; color: var(--ink-soft); margin: 0 0 12px 0; line-height: 1.55;
+  }
+  .explainpanel .lbl { font-weight: 700; color: var(--ink); display: block; margin-bottom: 4px; }
+  .explainpanel .lbl.second { margin-top: 12px; }
+  .explainpanel p { margin: 0 0 2px 0; color: var(--ink); }
+  .explainpanel .sign {
+    margin-top: 14px; padding-top: 12px; border-top: 1px solid rgba(184,144,63,0.3);
+    font-style: italic; color: var(--ink-soft); font-size: 0.85rem;
+  }
+  .loadingline { color: var(--ink-faint); font-size: 0.88rem; padding: 2px 0; }
+
+  .footnote {
+    text-align: center; color: var(--ink-faint); font-size: 0.8rem; margin-top: 34px; line-height: 1.55;
+  }
+
+  ::selection { background: var(--gold-soft); }
+
+  @media (max-width: 380px) {
+    .brand .name { font-size: 1.5rem; }
+    .verse { font-size: 1.02rem; }
+    .voicebtn { font-size: 0.78rem; padding: 10px 6px; }
+  }
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="hero">
+    <svg class="rays" viewBox="0 0 400 240" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <defs>
+        <linearGradient id="rayGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="var(--gold)" stop-opacity="0.55"/>
+          <stop offset="100%" stop-color="var(--gold)" stop-opacity="0"/>
+        </linearGradient>
+      </defs>
+      <g transform="translate(200,10)">
+        <path d="M0,0 L-14,180 L14,180 Z" fill="url(#rayGrad)" transform="rotate(-40)"/>
+        <path d="M0,0 L-14,190 L14,190 Z" fill="url(#rayGrad)" transform="rotate(-22)"/>
+        <path d="M0,0 L-16,200 L16,200 Z" fill="url(#rayGrad)" transform="rotate(-6)"/>
+        <path d="M0,0 L-16,200 L16,200 Z" fill="url(#rayGrad)" transform="rotate(10)"/>
+        <path d="M0,0 L-14,190 L14,190 Z" fill="url(#rayGrad)" transform="rotate(26)"/>
+        <path d="M0,0 L-14,180 L14,180 Z" fill="url(#rayGrad)" transform="rotate(42)"/>
+        <circle cx="0" cy="0" r="22" fill="var(--gold)" opacity="0.5"/>
+      </g>
+    </svg>
+    <div class="hero-content">
+      <svg class="dove" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M32 14c3-6 10-9 17-7-3 2-5 5-6 8 5 0 9 2 12 6-5-1-8 0-11 3 2 6-1 13-8 16 1 4-1 8-5 10 1-4 0-7-2-9-6 4-14 4-20-1-6-5-8-13-5-20-4 1-7 4-8 8-1-7 3-13 9-16 5-2 11-1 15 2 3-3 7-4 12 0z" fill="var(--gold)" opacity="0.9"/>
+      </svg>
+      <div class="brand">
+        <div class="name">The Simple Word</div>
+        <div class="tag" id="tagline">You're never alone here.</div>
+      </div>
+      <span class="freepill">Completely free — no sign-in, no paywall</span>
+    </div>
+  </div>
+
+  <div id="view"></div>
+</div>
+
+<script>
+(function() {
+  "use strict";
+
+  // ---- Bible structure (standard KJV book/chapter counts) ----
+  var OT = [
+    ["Genesis",50],["Exodus",40],["Leviticus",27],["Numbers",36],["Deuteronomy",34],
+    ["Joshua",24],["Judges",21],["Ruth",4],["1 Samuel",31],["2 Samuel",24],
+    ["1 Kings",22],["2 Kings",25],["1 Chronicles",29],["2 Chronicles",36],["Ezra",10],
+    ["Nehemiah",13],["Esther",10],["Job",42],["Psalms",150],["Proverbs",31],
+    ["Ecclesiastes",12],["Song of Solomon",8],["Isaiah",66],["Jeremiah",52],["Lamentations",5],
+    ["Ezekiel",48],["Daniel",12],["Hosea",14],["Joel",3],["Amos",9],
+    ["Obadiah",1],["Jonah",4],["Micah",7],["Nahum",3],["Habakkuk",3],
+    ["Zephaniah",3],["Haggai",2],["Zechariah",14],["Malachi",4]
+  ];
+  var NT = [
+    ["Matthew",28],["Mark",16],["Luke",24],["John",21],["Acts",28],
+    ["Romans",16],["1 Corinthians",16],["2 Corinthians",13],["Galatians",6],["Ephesians",6],
+    ["Philippians",4],["Colossians",4],["1 Thessalonians",5],["2 Thessalonians",3],["1 Timothy",6],
+    ["2 Timothy",4],["Titus",3],["Philemon",1],["Hebrews",13],["James",5],
+    ["1 Peter",5],["2 Peter",3],["1 John",5],["2 John",1],["3 John",1],
+    ["Jude",1],["Revelation",22]
+  ];
+  var ALL_BOOKS = OT.concat(NT);
+  var ALIASES = {
+    "song of songs": "Song of Solomon", "canticles": "Song of Solomon",
+    "psalm": "Psalms", "psalms": "Psalms",
+    "i samuel": "1 Samuel", "ii samuel": "2 Samuel",
+    "i kings": "1 Kings", "ii kings": "2 Kings",
+    "i chronicles": "1 Chronicles", "ii chronicles": "2 Chronicles",
+    "i corinthians": "1 Corinthians", "ii corinthians": "2 Corinthians",
+    "i thessalonians": "1 Thessalonians", "ii thessalonians": "2 Thessalonians",
+    "i timothy": "1 Timothy", "ii timothy": "2 Timothy",
+    "i peter": "1 Peter", "ii peter": "2 Peter",
+    "i john": "1 John", "ii john": "2 John", "iii john": "3 John",
+    "revelations": "Revelation", "rev": "Revelation"
+  };
+
+  var state = { view: "home", book: null, chapter: null, jumpVerse: null };
+  var cache = { chapters: {}, explains: {} };
+  var sampleFn = null;
+
+  function loadCache() {
+    try {
+      var raw = localStorage.getItem("simpleword-cache");
+      if (raw) {
+        var parsed = JSON.parse(raw);
+        cache.chapters = parsed.chapters || {};
+        cache.explains = parsed.explains || {};
+      }
+    } catch (e) { /* start empty */ }
+  }
+  function saveCache() {
+    try { localStorage.setItem("simpleword-cache", JSON.stringify(cache)); }
+    catch (e) { /* storage full or unavailable */ }
+  }
+  loadCache();
+
+  function el(tag, cls, html) {
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (html !== undefined) e.innerHTML = html;
+    return e;
+  }
+
+  function bookChapterCount(name) {
+    for (var i = 0; i < ALL_BOOKS.length; i++) if (ALL_BOOKS[i][0] === name) return ALL_BOOKS[i][1];
+    return null;
+  }
+
+  // ---------- Speech ----------
+  var speechSupported = !!(window.speechSynthesis && window.SpeechSynthesisUtterance);
+  var chosenVoice = null;
+  var currentUtterance = null;
+  var keepAliveTimer = null;
+
+  function pickVoice() {
+    if (!speechSupported) return;
+    var voices = window.speechSynthesis.getVoices() || [];
+    if (!voices.length) return;
+    var femaleHints = /karen|nicky|catherine|olivia|female|samantha|serena|moira|fiona|kate|susan|zira|hazel|victoria|tessa|veena|amelie/i;
+
+    // TIER 1 — male Australian voice, by known name/code.
+    var maleAuNames = ["Lee", "Russell", "en-AU-Standard-B", "en-AU-Standard-D", "en-AU-Wavenet-B", "en-AU-Wavenet-D", "Google en-AU Male"];
+    for (var i = 0; i < maleAuNames.length; i++) {
+      var hit = voices.filter(function(v) { return v.name.indexOf(maleAuNames[i]) !== -1; })[0];
+      if (hit) { chosenVoice = hit; return; }
+    }
+    // TIER 1b — any Australian voice that doesn't look female.
+    var auVoices = voices.filter(function(v) { return /en-AU/i.test(v.lang); });
+    var auMaleGuess = auVoices.filter(function(v) { return !femaleHints.test(v.name); })[0];
+    if (auMaleGuess) { chosenVoice = auMaleGuess; return; }
+    if (auVoices.length) { chosenVoice = auVoices[0]; return; }
+
+    // TIER 2 — no Australian voice on this device: warm British/English male voice.
+    var maleGbNames = ["Daniel", "Arthur", "Oliver", "Ryan", "en-GB-Standard-B", "en-GB-Standard-D", "en-GB-Wavenet-B", "en-GB-Wavenet-D", "Google UK English Male"];
+    for (var j = 0; j < maleGbNames.length; j++) {
+      var gHit = voices.filter(function(v) { return v.name.indexOf(maleGbNames[j]) !== -1; })[0];
+      if (gHit) { chosenVoice = gHit; return; }
+    }
+    // TIER 2b — any British voice that doesn't look female.
+    var gbVoices = voices.filter(function(v) { return /en-GB/i.test(v.lang); });
+    var gbMaleGuess = gbVoices.filter(function(v) { return !femaleHints.test(v.name); })[0];
+    if (gbMaleGuess) { chosenVoice = gbMaleGuess; return; }
+    if (gbVoices.length) { chosenVoice = gbVoices[0]; return; }
+
+    // TIER 3 — any male-sounding voice at all, any language/accent.
+    var maleNamesGeneral = ["Male", "David", "Mark", "James", "Fred", "Alex", "Thomas", "Guy"];
+    for (var k = 0; k < maleNamesGeneral.length; k++) {
+      var mHit = voices.filter(function(v) { return v.name.indexOf(maleNamesGeneral[k]) !== -1; })[0];
+      if (mHit) { chosenVoice = mHit; return; }
+    }
+    var enVoices = voices.filter(function(v) { return /^en/i.test(v.lang); });
+    var enMaleGuess = enVoices.filter(function(v) { return !femaleHints.test(v.name); })[0];
+    if (enMaleGuess) { chosenVoice = enMaleGuess; return; }
+
+    // TIER 4 — absolute last resort: whatever is first available. Never leave the voice empty.
+    chosenVoice = enVoices[0] || voices[0];
+  }
+  if (speechSupported) {
+    pickVoice();
+    window.speechSynthesis.onvoiceschanged = pickVoice;
+  }
+
+  function speak(text, onEnd) {
+    if (!speechSupported) { if (onEnd) onEnd(); return; }
+    // Voices sometimes load late — re-pick right before speaking so the best match is used.
+    if (!chosenVoice) pickVoice();
+    window.speechSynthesis.cancel();
+    var u = new SpeechSynthesisUtterance(text);
+    if (chosenVoice) u.voice = chosenVoice;
+    u.rate = 0.8;
+    u.pitch = 0.88;
+    function cleanup() {
+      currentUtterance = null;
+      if (keepAliveTimer) { clearInterval(keepAliveTimer); keepAliveTimer = null; }
+    }
+    u.onend = function() { cleanup(); if (onEnd) onEnd(); };
+    u.onerror = function() { cleanup(); if (onEnd) onEnd(); };
+    currentUtterance = u;
+    // Some desktop Chrome builds silently stop speech after ~15s on long text.
+    // Nudging pause/resume periodically keeps it going for the whole explanation.
+    if (keepAliveTimer) clearInterval(keepAliveTimer);
+    keepAliveTimer = setInterval(function() {
+      if (!window.speechSynthesis.speaking) { clearInterval(keepAliveTimer); keepAliveTimer = null; return; }
+      window.speechSynthesis.pause();
+      window.speechSynthesis.resume();
+    }, 10000);
+    window.speechSynthesis.speak(u);
+  }
+  function stopSpeaking() {
+    if (speechSupported) window.speechSynthesis.cancel();
+    currentUtterance = null;
+    if (keepAliveTimer) { clearInterval(keepAliveTimer); keepAliveTimer = null; }
+  }
+
+  // ---------- Views ----------
+  var viewEl = document.getElementById("view");
+
+  function render() {
+    stopSpeaking();
+    viewEl.innerHTML = "";
+    if (state.view === "home") renderHome();
+    else if (state.view === "chapters") renderChapters();
+    else if (state.view === "reader") renderReader();
+  }
+
+  function renderHome() {
+    var wrap = el("div");
+
+    var welcome = el("div", "welcome",
+      "Hi there. Pick any book, any chapter, any verse below. I'll show you what it says — and explain it simply. You're never alone here.");
+    wrap.appendChild(welcome);
+
+    var jumpbar = el("div", "jumpbar");
+    var input = el("input");
+    input.type = "text";
+    input.placeholder = "Type a verse, like John 3:16 or Psalm 23";
+    input.autocapitalize = "words";
+    var goBtn = el("button", "", "Go");
+    jumpbar.appendChild(input);
+    jumpbar.appendChild(goBtn);
+    wrap.appendChild(jumpbar);
+    wrap.appendChild(el("div", "jumphint", "Or browse a book below."));
+
+    function doJump() {
+      var q = input.value.trim();
+      if (!q) return;
+      var parsed = parseReference(q);
+      if (!parsed) {
+        input.style.borderColor = "#c0392b";
+        setTimeout(function(){ input.style.borderColor = ""; }, 900);
+        return;
+      }
+      state.book = parsed.book;
+      state.chapter = parsed.chapter;
+      state.jumpVerse = parsed.verse || null;
+      state.view = "reader";
+      render();
+    }
+    goBtn.addEventListener("click", doJump);
+    input.addEventListener("keydown", function(e){ if (e.key === "Enter") doJump(); });
+
+    wrap.appendChild(el("div", "testament-title", "Old Testament"));
+    wrap.appendChild(bookList(OT));
+    wrap.appendChild(el("div", "testament-title", "New Testament"));
+    wrap.appendChild(bookList(NT));
+
+    wrap.appendChild(el("div", "footnote",
+      "Bible text shown here is the King James Version, word for word. The plain-language notes are written to help, never to change what it says. Everything here is free, always."));
+
+    viewEl.appendChild(wrap);
+  }
+
+  function bookList(list) {
+    var container = el("div", "booklist");
+    list.forEach(function(b) {
+      var chip = el("div", "bookchip", b[0]);
+      chip.addEventListener("click", function() {
+        state.book = b[0];
+        state.view = "chapters";
+        render();
+      });
+      container.appendChild(chip);
+    });
+    return container;
+  }
+
+  function renderChapters() {
+    var wrap = el("div");
+    var bar = el("div", "backbar");
+    var back = el("button", "backbtn", "&larr; Books");
+    back.addEventListener("click", function() { state.view = "home"; render(); });
+    bar.appendChild(back);
+    wrap.appendChild(bar);
+
+    wrap.appendChild(el("div", "chapterhead", state.book));
+    var count = bookChapterCount(state.book);
+    wrap.appendChild(el("div", "chaptersub", count + (count === 1 ? " chapter" : " chapters") + " — pick one"));
+
+    var grid = el("div", "chaptergrid");
+    for (var i = 1; i <= count; i++) {
+      (function(n) {
+        var c = el("div", "chapternum", String(n));
+        c.addEventListener("click", function() {
+          state.chapter = n;
+          state.jumpVerse = null;
+          state.view = "reader";
+          render();
+        });
+        grid.appendChild(c);
+      })(i);
+    }
+    wrap.appendChild(grid);
+    viewEl.appendChild(wrap);
+  }
+
+  function renderReader() {
+    var wrap = el("div");
+    var bar = el("div", "backbar");
+    var back = el("button", "backbtn", "&larr; " + state.book);
+    back.addEventListener("click", function() { state.view = "chapters"; render(); });
+    bar.appendChild(back);
+    wrap.appendChild(bar);
+
+    wrap.appendChild(el("div", "chapterhead", state.book + " " + state.chapter));
+    wrap.appendChild(el("div", "chaptersub", "Tap any verse to see it explained simply — or hear it read aloud."));
+
+    var explainAllBtn = el("button", "explainall", "Explain the whole chapter, verse by verse");
+    wrap.appendChild(explainAllBtn);
+
+    var versesHost = el("div", "versehost");
+    versesHost.appendChild(el("div", "loadingline", "Fetching the text…"));
+    wrap.appendChild(versesHost);
+    viewEl.appendChild(wrap);
+
+    var key = state.book + " " + state.chapter;
+    if (cache.chapters[key]) {
+      showVerses(versesHost, cache.chapters[key], explainAllBtn);
+    } else {
+      fetchChapter(state.book, state.chapter, function(err, verses) {
+        if (err) {
+          versesHost.innerHTML = "";
+          versesHost.appendChild(el("div", "loadingline", "I couldn't load that chapter just now. Please try again in a moment."));
+          return;
+        }
+        cache.chapters[key] = verses;
+        saveCache();
+        showVerses(versesHost, verses, explainAllBtn);
+      });
+    }
+  }
+
+  function showVerses(host, verses, explainAllBtn) {
+    host.innerHTML = "";
+    var verseControllers = [];
+
+    verses.forEach(function(v) {
+      var row = el("div", "versewrap");
+      var vDiv = el("div", "verse");
+      vDiv.appendChild(el("span", "versenum", String(v.number)));
+      vDiv.appendChild(el("span", "versetext", escapeHtml(v.text)));
+      row.appendChild(vDiv);
+
+      var panelWrap = null;
+      var isOpen = false;
+      var readBtn, explainBtn, contentArea;
+
+      function buildPanel() {
+        panelWrap = el("div", "panelwrap");
+        var btnRow = el("div", "voicebtns");
+        readBtn = el("button", "voicebtn", "&#128266; Read This Aloud");
+        explainBtn = el("button", "voicebtn explain", "&#128172; Explain Simply");
+        btnRow.appendChild(readBtn);
+        btnRow.appendChild(explainBtn);
+        panelWrap.appendChild(btnRow);
+        contentArea = el("div", "content");
+        panelWrap.appendChild(contentArea);
+        row.appendChild(panelWrap);
+
+        readBtn.addEventListener("click", function() {
+          if (readBtn.classList.contains("playing")) {
+            stopSpeaking();
+            readBtn.classList.remove("playing");
+            readBtn.innerHTML = "&#128266; Read This Aloud";
+            return;
+          }
+          explainBtn.classList.remove("playing");
+          explainBtn.innerHTML = "&#128172; Explain Simply";
+          readBtn.classList.add("playing");
+          readBtn.innerHTML = "&#9209; Stop reading";
+          speak(v.text, function() {
+            readBtn.classList.remove("playing");
+            readBtn.innerHTML = "&#128266; Read This Aloud";
+          });
+        });
+
+        explainBtn.addEventListener("click", function() {
+          if (explainBtn.classList.contains("playing")) {
+            stopSpeaking();
+            explainBtn.classList.remove("playing");
+            explainBtn.innerHTML = "&#128172; Explain Simply";
+            return;
+          }
+          readBtn.classList.remove("playing");
+          readBtn.innerHTML = "&#128266; Read This Aloud";
+          loadExplanation(true);
+        });
+      }
+
+      function loadExplanation(andSpeak) {
+        contentArea.innerHTML = "";
+        contentArea.appendChild(el("div", "loadingline", "Thinking it through…"));
+        getExplanation(state.book, state.chapter, v.number, v.text, function(err, data) {
+          contentArea.innerHTML = "";
+          if (err) {
+            contentArea.appendChild(el("div", "loadingline", "Couldn't fetch that explanation — try tapping again."));
+            return;
+          }
+          renderExplanation(data);
+          if (andSpeak) {
+            var closing = "That's it. I'm right here with you. Always.";
+            var spoken = data.restated + ". " +
+              (data.tricky ? "This part is tricky, here's what it means. " : "Here it is simply put. ") +
+              data.simple + " In today's life, this means — " + data.today + " " + closing;
+            explainBtn.classList.add("playing");
+            explainBtn.innerHTML = "&#9209; Stop";
+            speak(spoken, function() {
+              explainBtn.classList.remove("playing");
+              explainBtn.innerHTML = "&#128172; Explain Simply";
+            });
+          }
+        });
+      }
+
+      function renderExplanation(data) {
+        if (!data.today && data.meaning) data.today = data.meaning;
+        var panel = el("div", "explainpanel");
+        if (data.tricky) {
+          panel.appendChild(el("div", "tricky", "This part is tricky — here's what it means"));
+        }
+        panel.appendChild(el("p", "restated", escapeHtml(data.restated)));
+        if (!data.tricky) {
+          panel.appendChild(el("span", "lbl", "Here it is simply put —"));
+        }
+        panel.appendChild(el("p", "", escapeHtml(data.simple)));
+        panel.appendChild(el("span", "lbl second", "In today's life, this means —"));
+        panel.appendChild(el("p", "", escapeHtml(data.today)));
+        panel.appendChild(el("div", "sign", "That's it. I'm right here with you. Always."));
+        contentArea.appendChild(panel);
+      }
+
+      function openPanel() {
+        if (isOpen) return;
+        isOpen = true;
+        vDiv.classList.add("open");
+        buildPanel();
+        var cacheKey = state.book + " " + state.chapter + ":" + v.number;
+        if (cache.explains[cacheKey]) renderExplanation(cache.explains[cacheKey]);
+      }
+      function closePanel() {
+        isOpen = false;
+        stopSpeaking();
+        vDiv.classList.remove("open");
+        if (panelWrap) { panelWrap.remove(); panelWrap = null; }
+      }
+
+      vDiv.addEventListener("click", function() {
+        if (isOpen) closePanel(); else openPanel();
+      });
+
+      verseControllers.push({
+        num: v.number,
+        openAndExplain: function() {
+          openPanel();
+          loadExplanation(false);
+        },
+        open: openPanel
+      });
+      host.appendChild(row);
+
+      if (state.jumpVerse && v.number === state.jumpVerse) {
+        setTimeout(function() {
+          vDiv.scrollIntoView({ behavior: "smooth", block: "center" });
+          openPanel();
+          loadExplanation(false);
+        }, 150);
+      }
+    });
+
+    explainAllBtn.addEventListener("click", function() {
+      explainAllBtn.disabled = true;
+      explainAllBtn.textContent = "Opening each verse…";
+      var i = 0;
+      function step() {
+        if (i >= verseControllers.length) {
+          explainAllBtn.textContent = "Done — that's the whole chapter";
+          return;
+        }
+        verseControllers[i].openAndExplain();
+        i++;
+        setTimeout(step, 320);
+      }
+      step();
+    });
+  }
+
+  function escapeHtml(s) {
+    var d = document.createElement("div");
+    d.textContent = s == null ? "" : s;
+    return d.innerHTML;
+  }
+
+  // ---------- reference parsing ----------
+  function parseReference(q) {
+    q = q.trim();
+    var m = q.match(/^(.*?)\s+(\d+)(?::(\d+))?$/);
+    if (!m) return null;
+    var rawBook = m[1].trim();
+    var chapter = parseInt(m[2], 10);
+    var verse = m[3] ? parseInt(m[3], 10) : null;
+    var normalized = normalizeBook(rawBook);
+    if (!normalized) return null;
+    var maxCh = bookChapterCount(normalized);
+    if (!maxCh || chapter < 1 || chapter > maxCh) return null;
+    return { book: normalized, chapter: chapter, verse: verse };
+  }
+
+  function normalizeBook(raw) {
+    var lower = raw.toLowerCase().replace(/\./g, "").trim();
+    lower = lower.replace(/^1st\b/, "1").replace(/^2nd\b/, "2").replace(/^3rd\b/, "3");
+    lower = lower.replace(/^first\b/, "1").replace(/^second\b/, "2").replace(/^third\b/, "3");
+    if (ALIASES[lower]) return ALIASES[lower];
+    for (var i = 0; i < ALL_BOOKS.length; i++) {
+      if (ALL_BOOKS[i][0].toLowerCase() === lower) return ALL_BOOKS[i][0];
+    }
+    var hits = ALL_BOOKS.filter(function(b) { return b[0].toLowerCase().indexOf(lower) === 0; });
+    if (hits.length === 1) return hits[0][0];
+    return null;
+  }
+
+  // ---------- Claude sample calls ----------
+  function getSample(cb) {
+    if (sampleFn) { cb(sampleFn); return; }
+    if (!window.claude || !window.claude.use) { cb(null); return; }
+    window.claude.use("sample").then(function(s) {
+      sampleFn = s;
+      cb(s);
+    }).catch(function() { cb(null); });
+  }
+
+  function fetchChapter(book, chapter, done) {
+    getSample(function(sample) {
+      if (!sample) { done(new Error("no sample")); return; }
+      var prompt = "Return the exact King James Version (KJV) text of " + book + " chapter " + chapter +
+        ", verse by verse, word for word with no changes, no paraphrasing, no modernization. " +
+        "Respond with ONLY valid JSON in this exact shape and nothing else, no markdown fences: " +
+        '{"verses":[{"number":1,"text":"..."}]} — include every verse in the chapter in order.';
+      sample.json(prompt, { modelTier: "default", cache: true }).then(function(data) {
+        if (!data || !data.verses || !data.verses.length) { done(new Error("empty")); return; }
+        done(null, data.verses);
+      }).catch(function(err) { done(err); });
+    });
+  }
+
+  function getExplanation(book, chapter, verseNum, verseText, done) {
+    var key = book + " " + chapter + ":" + verseNum;
+    if (cache.explains[key]) { done(null, cache.explains[key]); return; }
+    getSample(function(sample) {
+      if (!sample) { done(new Error("no sample")); return; }
+      var prompt = "You are a warm, down-to-earth mate helping someone understand the Bible in plain, everyday language, like chatting over a cuppa. Not preachy, not formal. " +
+        "Here is " + book + " " + chapter + ":" + verseNum + " (KJV), exactly as written: \"" + verseText + "\". " +
+        "Respond with ONLY valid JSON, no markdown fences, in this exact shape: " +
+        '{"restated":"...", "simple":"...", "today":"...", "tricky": true or false}. ' +
+        "\"restated\" is one short, very plain sentence that just re-says what the verse is saying, casual and easy. " +
+        "\"simple\" then explains it a bit more fully in short, everyday sentences, no theological jargon, no old-fashioned words, warm and clear, 2 to 4 sentences. " +
+        "\"today\" connects it to something real people are actually going through this week — pick whichever fits this verse best from things like: feeling alone, stress at work, a hard time with family, being there for a mate who's struggling, or finding it hard to ask for help. Make it a specific, relatable, present-day scene, not an abstract idea, 2 to 3 sentences, written directly to the person. " +
+        "\"tricky\" is true only if this verse is genuinely hard to follow for a modern reader (old customs, genealogies, symbolic or apocalyptic language, unfamiliar names/places) and false otherwise. " +
+        "Never change what the verse actually teaches — only make it easier to understand and easier to see how it applies right now.";
+      sample.json(prompt, { modelTier: "default", cache: true }).then(function(data) {
+        if (!data || !data.simple) { done(new Error("empty")); return; }
+        if (!data.today && data.meaning) data.today = data.meaning;
+        cache.explains[key] = data;
+        saveCache();
+        done(null, data);
+      }).catch(function(err) { done(err); });
+    });
+  }
+
+  render();
+})();
+</script>
+</body>
+</html>
