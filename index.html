@@ -539,7 +539,7 @@
     wrap.appendChild(versesHost);
     viewEl.appendChild(wrap);
 
-    var key = state.book + " " + state.chapter;
+    var key = 'web-v1|' + state.book + " " + state.chapter;
     if (cache.chapters[key]) {
       showVerses(versesHost, cache.chapters[key], explainAllBtn);
     } else {
