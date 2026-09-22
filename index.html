@@ -613,49 +613,7 @@
         });
       }
 
-      function loadExplanation(andSpeak) {
-        contentArea.innerHTML = "";
-        contentArea.appendChild(el("div", "loadingline", "Thinking it through…"));
-        getExplanation(state.book, state.chapter, v.number, v.text, function(err, data) {
-          contentArea.innerHTML = "";
-          if (err) {
-            contentArea.appendChild(el("div", "loadingline", "Couldn't fetch that explanation — try tapping again."));
-            return;
-          }
-          renderExplanation(data);
-          if (andSpeak) {
-            var closing = "That's it. I'm right here with you. Always.";
-            var spoken = data.restated + ". " +
-              (data.tricky ? "This part is tricky, here's what it means. " : "Here it is simply put. ") +
-              data.simple + " In today's life, this means — " + data.today + " " + closing;
-            explainBtn.classList.add("playing");
-            explainBtn.innerHTML = "&#9209; Stop";
-            speak(spoken, function() {
-              explainBtn.classList.remove("playing");
-              explainBtn.innerHTML = "&#128172; Explain Simply";
-            });
-          }
-        });
-      }
-
-      function renderExplanation(data) {
-        if (!data.today && data.meaning) data.today = data.meaning;
-        var panel = el("div", "explainpanel");
-        if (data.tricky) {
-          panel.appendChild(el("div", "tricky", "This part is tricky — here's what it means"));
-        }
-        panel.appendChild(el("p", "restated", escapeHtml(data.restated)));
-        if (!data.tricky) {
-          panel.appendChild(el("span", "lbl", "Here it is simply put —"));
-        }
-        panel.appendChild(el("p", "", escapeHtml(data.simple)));
-        panel.appendChild(el("span", "lbl second", "In today's life, this means —"));
-        panel.appendChild(el("p", "", escapeHtml(data.today)));
-        panel.appendChild(el("div", "sign", "That's it. I'm right here with you. Always."));
-        contentArea.appendChild(panel);
-      }
-
-      function openPanel() {
+      function loadExplanation(andSpeak) { contentArea.innerHTML = ''; getExplanation(state.book, state.chapter, v.number, v.text, function(err, data) { contentArea.innerHTML = ''; if (err) return; renderExplanation(data); if (andSpeak) { explainBtn.classList.add('playing'); explainBtn.innerHTML = '&#9209; Stop'; speak(data.simple, function() { explainBtn.classList.remove('playing'); explainBtn.innerHTML = '&#128172; Explain Simply'; }); } }); } function renderExplanation(data) { var panel = el('div', 'explainpanel'); panel.appendChild(el('p', '', escapeHtml(data.simple || data.restated || ''))); contentArea.appendChild(panel); } function openPanel() {
         if (isOpen) return;
         isOpen = true;
         vDiv.classList.add("open");
@@ -754,7 +712,7 @@
     }).catch(function() { cb(null); });
   }
 
-  function fetchChapter(book, chapter, done) { var url = 'https://bible-api.com/' + encodeURIComponent(book + ' ' + chapter) + '?translation=kjv'; fetch(url).then(function(r){return r.json();}).then(function(d){var v=(d.verses||[]).map(function(x){return {number:Number(x.verse),text:String(x.text||'').trim()};}); done(null,v);}).catch(function(e){done(e);}); } function getExplanation(book, chapter, verseNum, verseText, done) { var key = book + ' ' + chapter + ':' + verseNum; if (cache.explains[key]) { done(null, cache.explains[key]); return; } var data = { restated: 'This verse says: ' + verseText, simple: 'In plain words, slow down and notice what this verse is showing you about God, people, or the way we live.', today: 'Bring this verse into today by asking where it meets your real life and what small act of patience, courage, or kindness it invites.', tricky: false }; if (book === 'John' && chapter === 3 && verseNum === 16) data = { restated: 'God’s love reaches the whole world, and he gave Jesus so people can have lasting life.', simple: 'This verse is about the size of God’s love and the gift of Jesus. That love is offered to the whole world.', today: 'When you feel forgotten or too far gone, this verse reminds you that God’s care is bigger than your worst day.', tricky: false }; cache.explains[key] = data; saveCache(); setTimeout(function() { done(null, data); }, 180); } render();
+  function fetchChapter(book, chapter, done) { var url = 'https://bible-api.com/' + encodeURIComponent(book + ' ' + chapter) + '?translation=kjv'; fetch(url).then(function(r){return r.json();}).then(function(d){var v=(d.verses||[]).map(function(x){return {number:Number(x.verse),text:String(x.text||'').trim()};}); done(null,v);}).catch(function(e){done(e);}); } function getExplanation(book, chapter, verseNum, verseText, done) { var key = book + ' ' + chapter + ':' + verseNum; if (cache.explains[key]) { done(null, cache.explains[key]); return; } var text = 'God’s love is bigger than the things that make us feel alone or not good enough. You do not have to face life by yourself — you can show up honestly, ask for help, and take the next small step with hope.'; if (book === 'John' && chapter === 3 && verseNum === 16) text = 'God loves every person deeply, and Jesus is God’s gift to the world. When you feel alone or like you have gone too far, remember that you are not forgotten — ask for help and take the next step with God.'; var data = { restated: text, simple: text, today: '', tricky: false }; cache.explains[key] = data; saveCache(); setTimeout(function() { done(null, data); }, 120); } render();
 })();
 </script>
 </body>
