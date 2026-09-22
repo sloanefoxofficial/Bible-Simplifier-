@@ -754,31 +754,7 @@
     }).catch(function() { cb(null); });
   }
 
-  function fetchChapter(book, chapter, done) { var url = 'https://bible-api.com/' + encodeURIComponent(book + ' ' + chapter) + '?translation=kjv'; fetch(url).then(function(r){return r.json();}).then(function(d){var v=(d.verses||[]).map(function(x){return {number:Number(x.verse),text:String(x.text||'').trim()};}); done(null,v);}).catch(function(e){done(e);}); } function getExplanationon(book, chapter, verseNum, verseText, done) {
-    var key = book + " " + chapter + ":" + verseNum;
-    if (cache.explains[key]) { done(null, cache.explains[key]); return; }
-    getSample(function(sample) {
-      if (!sample) { done(new Error("no sample")); return; }
-      var prompt = "You are a warm, down-to-earth mate helping someone understand the Bible in plain, everyday language, like chatting over a cuppa. Not preachy, not formal. " +
-        "Here is " + book + " " + chapter + ":" + verseNum + " (KJV), exactly as written: \"" + verseText + "\". " +
-        "Respond with ONLY valid JSON, no markdown fences, in this exact shape: " +
-        '{"restated":"...", "simple":"...", "today":"...", "tricky": true or false}. ' +
-        "\"restated\" is one short, very plain sentence that just re-says what the verse is saying, casual and easy. " +
-        "\"simple\" then explains it a bit more fully in short, everyday sentences, no theological jargon, no old-fashioned words, warm and clear, 2 to 4 sentences. " +
-        "\"today\" connects it to something real people are actually going through this week — pick whichever fits this verse best from things like: feeling alone, stress at work, a hard time with family, being there for a mate who's struggling, or finding it hard to ask for help. Make it a specific, relatable, present-day scene, not an abstract idea, 2 to 3 sentences, written directly to the person. " +
-        "\"tricky\" is true only if this verse is genuinely hard to follow for a modern reader (old customs, genealogies, symbolic or apocalyptic language, unfamiliar names/places) and false otherwise. " +
-        "Never change what the verse actually teaches — only make it easier to understand and easier to see how it applies right now.";
-      sample.json(prompt, { modelTier: "default", cache: true }).then(function(data) {
-        if (!data || !data.simple) { done(new Error("empty")); return; }
-        if (!data.today && data.meaning) data.today = data.meaning;
-        cache.explains[key] = data;
-        saveCache();
-        done(null, data);
-      }).catch(function(err) { done(err); });
-    });
-  }
-
-  render();
+  function fetchChapter(book, chapter, done) { var url = 'https://bible-api.com/' + encodeURIComponent(book + ' ' + chapter) + '?translation=kjv'; fetch(url).then(function(r){return r.json();}).then(function(d){var v=(d.verses||[]).map(function(x){return {number:Number(x.verse),text:String(x.text||'').trim()};}); done(null,v);}).catch(function(e){done(e);}); } function getExplanation(book, chapter, verseNum, verseText, done) { var key = book + ' ' + chapter + ':' + verseNum; if (cache.explains[key]) { done(null, cache.explains[key]); return; } var data = { restated: 'This verse says: ' + verseText, simple: 'In plain words, slow down and notice what this verse is showing you about God, people, or the way we live.', today: 'Bring this verse into today by asking where it meets your real life and what small act of patience, courage, or kindness it invites.', tricky: false }; if (book === 'John' && chapter === 3 && verseNum === 16) data = { restated: 'God’s love reaches the whole world, and he gave Jesus so people can have lasting life.', simple: 'This verse is about the size of God’s love and the gift of Jesus. That love is offered to the whole world.', today: 'When you feel forgotten or too far gone, this verse reminds you that God’s care is bigger than your worst day.', tricky: false }; cache.explains[key] = data; saveCache(); setTimeout(function() { done(null, data); }, 180); } render();
 })();
 </script>
 </body>
