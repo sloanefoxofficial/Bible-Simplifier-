@@ -540,7 +540,7 @@
     wrap.appendChild(el("div", "chapterhead", state.book + " " + state.chapter));
     wrap.appendChild(el("div", "chaptersub", "Tap any verse to see it explained simply — or hear it read aloud."));
 
-    var explainAllBtn = el("button", "explainall", "Explain the whole chapter, verse by verse");
+    var explainAllBtn = el("button", "explainall", "Show simple explanation for every verse");
     wrap.appendChild(explainAllBtn);
 
     var versesHost = el("div", "versehost");
@@ -567,6 +567,29 @@
 
   function showVerses(host, verses, explainAllBtn) {
     host.innerHTML = "";
+    var chapterActions = el("div", "chapteractions");
+    var readChapterBtn = el("button", "explainall", "Read whole chapter aloud");
+    var explainChapterBtn = el("button", "explainall", "Explain whole chapter aloud");
+    chapterActions.appendChild(readChapterBtn);
+    chapterActions.appendChild(explainChapterBtn);
+    host.appendChild(chapterActions);
+    var chapterSpeechPlaying = false;
+    var explanationRun = 0;
+    readChapterBtn.addEventListener("click", function() {
+      if (chapterSpeechPlaying) { stopSpeaking(); chapterSpeechPlaying = false; readChapterBtn.textContent = "Read whole chapter aloud"; return; }
+      chapterSpeechPlaying = true; readChapterBtn.textContent = "Stop reading chapter";
+      speak(verses.map(function(v) { return "Verse " + v.number + ". " + v.text; }).join(" "), function() { chapterSpeechPlaying = false; readChapterBtn.textContent = "Read whole chapter aloud"; });
+    });
+    explainChapterBtn.addEventListener("click", function() {
+      if (chapterSpeechPlaying) { stopSpeaking(); chapterSpeechPlaying = false; explanationRun++; explainChapterBtn.textContent = "Explain whole chapter aloud"; return; }
+      chapterSpeechPlaying = true; explanationRun++; var run = explanationRun; var pieces = []; var i = 0; explainChapterBtn.textContent = "Preparing chapter explanation…";
+      function collect() {
+        if (run !== explanationRun) return;
+        if (i >= verses.length) { explainChapterBtn.textContent = "Stop chapter explanation"; speak(pieces.join(" "), function() { if (run === explanationRun) { chapterSpeechPlaying = false; explainChapterBtn.textContent = "Explain whole chapter aloud"; } }); return; }
+        var v = verses[i++]; getExplanation(state.book, state.chapter, v.number, v.text, function(err, data) { if (run !== explanationRun) return; if (!err && data) pieces.push("Verse " + v.number + ". " + data.restated + ". " + data.simple + " " + data.today); collect(); });
+      }
+      collect();
+    });
     var verseControllers = [];
 
     verses.forEach(function(v) {
