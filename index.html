@@ -338,6 +338,7 @@
   var chosenVoice = null;
   var currentUtterance = null;
   var keepAliveTimer = null;
+  var speechRunId = 0;
 
   function pickVoice() {
     if (!speechSupported) return;
@@ -389,36 +390,44 @@
 
   function speak(text, onEnd) {
     if (!speechSupported) { if (onEnd) onEnd(); return; }
-    // Voices sometimes load late — re-pick right before speaking so the best match is used.
     if (!chosenVoice) pickVoice();
+    var run = ++speechRunId;
     window.speechSynthesis.cancel();
-    var u = new SpeechSynthesisUtterance(text);
-    if (chosenVoice) u.voice = chosenVoice;
-    u.rate = 0.8;
-    u.pitch = 0.88;
-    function cleanup() {
-      currentUtterance = null;
-      if (keepAliveTimer) { clearInterval(keepAliveTimer); keepAliveTimer = null; }
+    if (keepAliveTimer) { clearInterval(keepAliveTimer); keepAliveTimer = null; }
+    var normalized = String(text || '').replace(/\s+/g, ' ').trim();
+    var sentences = normalized.match(/[^.!?]+[.!?]+|[^.!?]+$/g) || [];
+    var chunks = [];
+    sentences.forEach(function(sentence) {
+      var words = sentence.trim().split(' ');
+      var part = '';
+      words.forEach(function(word) {
+        if ((part + ' ' + word).trim().length > 220 && part) { chunks.push(part.trim()); part = ''; }
+        part += (part ? ' ' : '') + word;
+      });
+      if (part.trim()) chunks.push(part.trim());
+    });
+    var index = 0;
+    function next() {
+      if (run !== speechRunId) return;
+      if (index >= chunks.length) { currentUtterance = null; if (onEnd) onEnd(); return; }
+      var u = new SpeechSynthesisUtterance(chunks[index++]);
+      if (chosenVoice) u.voice = chosenVoice;
+      u.rate = 0.8;
+      u.pitch = 0.88;
+      u.volume = 1;
+      u.onend = next;
+      u.onerror = function() { if (run === speechRunId) next(); };
+      currentUtterance = u;
+      window.speechSynthesis.speak(u);
     }
-    u.onend = function() { cleanup(); if (onEnd) onEnd(); };
-    u.onerror = function() { cleanup(); if (onEnd) onEnd(); };
-    currentUtterance = u;
-    // Some desktop Chrome builds silently stop speech after ~15s on long text.
-    // Nudging pause/resume periodically keeps it going for the whole explanation.
-    if (keepAliveTimer) clearInterval(keepAliveTimer);
-    keepAliveTimer = setInterval(function() {
-      if (!window.speechSynthesis.speaking) { clearInterval(keepAliveTimer); keepAliveTimer = null; return; }
-      window.speechSynthesis.pause();
-      window.speechSynthesis.resume();
-    }, 10000);
-    window.speechSynthesis.speak(u);
+    next();
   }
   function stopSpeaking() {
+    speechRunId++;
     if (speechSupported) window.speechSynthesis.cancel();
     currentUtterance = null;
     if (keepAliveTimer) { clearInterval(keepAliveTimer); keepAliveTimer = null; }
   }
-
   // ---------- Views ----------
   var viewEl = document.getElementById("view");
 
